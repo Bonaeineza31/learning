@@ -8,7 +8,7 @@ A simple backend API for handling contact form submissions, built during an inte
 - **Framework:** Express.js
 - **Database:** MongoDB 
 
-## Project Structure
+## Current Project Structure
 
 ```
 backend/
@@ -22,7 +22,7 @@ backend/
 ## Collaborators
 
 - Hirwa Leon - Backend
-- IHIRWA Saina - Frontend (coming soon)
+- IHIRWA Saina - Frontend
 - INEZA Bonae
 
 
