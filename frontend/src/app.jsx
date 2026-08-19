@@ -1,4 +1,4 @@
-import { useState } from 'preact/hooks'
+import { useEffect, useState } from 'preact/hooks'
 import './app.css'
 
 const initialForm = {
@@ -7,10 +7,44 @@ const initialForm = {
   phone: '',
   message: '',
 }
+
 export function App() {
   const [form, setForm] = useState(initialForm)
   const [errors, setErrors] = useState({})
   const [status, setStatus] = useState({ loading: false, success: '', error: '' })
+  const [contacts, setContacts] = useState([])
+  const [loadingContacts, setLoadingContacts] = useState(true)
+  const [contactsError, setContactsError] = useState('')
+
+  const loadContacts = async () => {
+    try {
+      setLoadingContacts(true)
+      setContactsError('')
+
+      const response = await fetch('/api/contact', {
+        headers: {
+          Accept: 'application/json',
+        },
+      })
+
+      const result = await response.json().catch(() => ({ success: false, data: [] }))
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to load recent submissions.')
+      }
+
+      setContacts(Array.isArray(result.data) ? result.data : [])
+    } catch (error) {
+      setContactsError(error.message || 'Unable to load submissions.')
+      setContacts([])
+    } finally {
+      setLoadingContacts(false)
+    }
+  }
+
+  useEffect(() => {
+    loadContacts()
+  }, [])
 
   const validateForm = () => {
     const nextErrors = {}
@@ -34,9 +68,7 @@ export function App() {
       nextErrors.email = 'Please enter a valid email address.'
     }
 
-    if (!normalizedPhone) {
-      nextErrors.phone = 'Phone number is required.'
-    } else if (normalizedPhone.length !== 10) {
+    if (normalizedPhone && normalizedPhone.length !== 10) {
       nextErrors.phone = 'Phone number must be exactly 10 digits.'
     }
 
@@ -105,6 +137,9 @@ export function App() {
       const result = await response.json().catch(() => ({}))
 
       if (!response.ok) {
+        if (Array.isArray(result.errors) && result.errors.length > 0) {
+          throw new Error(result.errors.join(', '))
+        }
         throw new Error(result.message || 'Something went wrong. Please try again later.')
       }
 
@@ -115,11 +150,12 @@ export function App() {
       })
       setForm(initialForm)
       setErrors({})
+      await loadContacts()
     } catch (error) {
       setStatus({
         loading: false,
         success: '',
-        error: errors.message || 'Failed to submit the form. Please try again.',
+        error: error.message || 'Failed to submit the form. Please try again.',
       })
     }
   }
@@ -224,7 +260,33 @@ export function App() {
             <div class="office-info">
               <p>Address: AC Mobility Office</p>
               <p>Email: hello@acmobility.com</p>
-              <p>Phone: +1 (800) 555-0188</p>
+              <p>Phone: +250 788 123 456</p>
+            </div>
+
+            <div class="records-card">
+              <div class="records-header">
+                <h3>Recent submissions</h3>
+                <span>{contacts.length}</span>
+              </div>
+
+              {loadingContacts && <p class="records-status">Loading latest submissions...</p>}
+              {!loadingContacts && contactsError && <p class="status error">{contactsError}</p>}
+              {!loadingContacts && !contactsError && contacts.length === 0 && (
+                <p class="records-status">No submissions yet.</p>
+              )}
+
+              {!loadingContacts && !contactsError && contacts.length > 0 && (
+                <ul class="contact-list">
+                  {contacts.map((contact) => (
+                    <li class="contact-item" key={contact._id || `${contact.email}-${contact.createdAt}`}>
+                      <strong>{contact.name}</strong>
+                      <span>{contact.email}</span>
+                      {contact.phone && <small>{contact.phone}</small>}
+                      <p>{contact.message}</p>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </aside>
         </div>
