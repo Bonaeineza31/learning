@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import Register from '../models/Register.js';
+import Auth from '../models/auth.js';
 
 export const registerUser = async (req, res) => {
   try {
@@ -34,7 +34,7 @@ export const registerUser = async (req, res) => {
       return res.status(400).json({ success: false, errors });
     }
 
-    const existingUser = await Register.findOne({ email: cleanEmail });
+    const existingUser = await Auth.findOne({ email: cleanEmail });
     if (existingUser) {
       return res.status(409).json({
         success: false,
@@ -44,7 +44,7 @@ export const registerUser = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(cleanPassword, 10);
 
-    const user = new Register({
+    const user = new Auth({
       name: cleanName,
       email: cleanEmail,
       password: hashedPassword,
@@ -72,7 +72,7 @@ export const registerUser = async (req, res) => {
 
 export const getUsers = async (req, res) => {
   try {
-    const users = await Register.find()
+    const users = await Auth.find()
       .select('-password')
       .sort({ createdAt: -1 })
       .lean();

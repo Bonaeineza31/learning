@@ -137,10 +137,10 @@ export function Navbar() {
         throw new Error(result.message || 'Registration failed. Please try again.')
       }
 
-      setIsLoggedIn(true)
-      setUserName(result.data.name)
       setRegisterForm({ name: '', email: '', password: '', confirmPassword: '' })
       setIsRegisterOpen(false)
+      setLoginError('')
+      setIsLoginOpen(true)
     } catch (error) {
       setRegisterError(error.message || 'Registration failed. Please try again.')
     } finally {

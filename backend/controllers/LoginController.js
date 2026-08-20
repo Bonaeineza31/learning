@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import Register from '../models/Register.js';
+import Auth from '../models/auth.js';
 
 export const loginUser = async (req, res) => {
   try {
@@ -23,7 +23,7 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({ success: false, errors });
     }
 
-    const user = await Register.findOne({ email: cleanEmail });
+    const user = await Auth.findOne({ email: cleanEmail });
     if (!user) {
       return res.status(401).json({
         success: false,

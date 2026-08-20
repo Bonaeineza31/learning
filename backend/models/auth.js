@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
 
-const registerSchema = new mongoose.Schema({
+const authSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
 }, { timestamps: true });
 
-export default mongoose.model('Register', registerSchema);
+export default mongoose.model('Auth', authSchema);
