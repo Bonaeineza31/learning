@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'preact/hooks'
+import { Navbar } from './components/Navbar'
 import './app.css'
 
 const initialForm = {
@@ -161,7 +162,9 @@ export function App() {
   }
 
   return (
-    <main class="contact-page">
+    <>
+      <Navbar />
+      <main class="contact-page">
       <section class="contact-shell">
         <div class="contact-header">
           <p class="eyebrow">Contact Us</p>
@@ -292,5 +295,6 @@ export function App() {
         </div>
       </section>
     </main>
+    </>
   )
 }

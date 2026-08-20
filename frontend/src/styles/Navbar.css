@@ -1,0 +1,281 @@
+.navbar {
+  background: #0f3460;
+  color: white;
+  padding: 1rem 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.logo-text {
+  color: #06d6d0;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 2rem;
+}
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+  color: #06d6d0;
+}
+
+.navbar-auth {
+  display: flex;
+  align-items: center;
+}
+
+.btn-login {
+  background: #3a86ff;
+  color: white;
+  border: none;
+  padding: 0.65rem 1.5rem;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-size: 1rem;
+}
+
+.btn-login:hover {
+  background: #2969d1;
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-greeting {
+  font-size: 0.95rem;
+}
+
+.btn-logout {
+  background: transparent;
+  color: white;
+  border: 2px solid white;
+  padding: 0.5rem 1.2rem;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+}
+
+.btn-logout:hover {
+  background: white;
+  color: #0f3460;
+}
+
+/* Login Modal Styles */
+.login-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+  padding: 1rem;
+  min-height: 100vh;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.login-form-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 420px;
+  padding: 2rem;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.login-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.login-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 1.5rem;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #999;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+}
+
+.close-btn:hover {
+  color: #333;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  color: #333;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.form-group input {
+  padding: 0.75rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #3a86ff;
+}
+
+.error-message {
+  background: #fee;
+  color: #c33;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.btn-submit {
+  background: #3a86ff;
+  color: white;
+  border: none;
+  padding: 0.85rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-submit:hover {
+  background: #2969d1;
+}
+
+.login-footer {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+.login-footer p {
+  margin: 0;
+  color: #666;
+}
+
+.signup-link {
+  color: #3a86ff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.signup-link:hover {
+  color: #2969d1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .navbar-container {
+    flex-wrap: wrap;
+    padding: 0 1rem;
+  }
+
+  .navbar-links {
+    gap: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .navbar-logo {
+    font-size: 1.2rem;
+  }
+
+  .login-form-container {
+    width: 95%;
+    padding: 1.5rem;
+  }
+
+  .user-menu {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-end;
+  }
+
+  .user-greeting {
+    font-size: 0.85rem;
+  }
+
+  .btn-logout {
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem;
+  }
+}
