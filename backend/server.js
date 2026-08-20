@@ -2,8 +2,7 @@ import 'dotenv/config.js';
 import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
-import createContactRoutes from './routes/createContactRoutes.js';
-import getContactRoutes from './routes/getContactRoutes.js';
+import ContactRoutes from './routes/ContactRoutes.js';
 
 const app = express();
 const port = process.env.PORT || 3032;
@@ -27,8 +26,8 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-app.use('/api/contact', createContactRoutes);
-app.use('/api/contact', getContactRoutes);
+app.use('/api/contact', ContactRoutes);
+
 
 app.use((req, res) => {
   res.status(404).json({
