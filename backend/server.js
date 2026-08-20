@@ -3,11 +3,11 @@ import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import ContactRoutes from './routes/ContactRoutes.js';
-
+import RegisterRoutes from './routes/RegisterRoutes.js';
+import LoginRoutes from './routes/LoginRoutes.js';
 const app = express();
 const port = process.env.PORT || 3032;
 const mongoURI = process.env.MONGODB_URI;
-
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
@@ -27,6 +27,8 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/contact', ContactRoutes);
+app.use('/api/auth/register', RegisterRoutes);
+app.use('/api/auth/login', LoginRoutes);
 
 
 app.use((req, res) => {

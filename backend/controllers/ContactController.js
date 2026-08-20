@@ -1,4 +1,5 @@
 import Contact from '../models/Contact.js';
+import mongoose from 'mongoose';
 
 export const createContact = async (req, res) => {
   try {
@@ -55,6 +56,10 @@ export const createContact = async (req, res) => {
 };
 export const getContacts = async (req, res) => {
   try {
+    // If the database is not connected, return an empty list instead of an error
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(200).json({ success: true, count: 0, data: [] });
+    }
     const contacts = await Contact.find().sort({ createdAt: -1 }).lean();
 
     return res.status(200).json({
