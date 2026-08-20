@@ -1,6 +1,6 @@
-const Contact = require('../models/Contact');
+import Contact from '../models/Contact.js';
 
-exports.getContacts = async (req, res) => {
+export const getContacts = async (req, res) => {
   try {
     const contacts = await Contact.find().sort({ createdAt: -1 }).lean();
 

@@ -1,9 +1,9 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const mongoose = require('mongoose');
-const createContactRoutes = require('./routes/createContactRoutes');
-const getContactRoutes = require('./routes/getContactRoutes');
+import 'dotenv/config.js';
+import express from 'express';
+import cors from 'cors';
+import mongoose from 'mongoose';
+import createContactRoutes from './routes/createContactRoutes.js';
+import getContactRoutes from './routes/getContactRoutes.js';
 
 const app = express();
 const port = process.env.PORT || 3032;
@@ -41,4 +41,4 @@ app.listen(port, () => {
   console.log('Server started at http://localhost:' + port);
 });
 
-module.exports = app;
+export default app;

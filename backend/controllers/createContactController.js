@@ -1,6 +1,6 @@
-const Contact = require('../models/Contact');
+import Contact from '../models/Contact.js';
 
-exports.createContact = async (req, res) => {
+export const createContact = async (req, res) => {
   try {
     const { name, email, message, phone } = req.body;
 
