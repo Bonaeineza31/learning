@@ -5,9 +5,30 @@ import mongoose from 'mongoose';
 import ContactRoutes from './routes/ContactRoutes.js';
 import RegisterRoutes from './routes/RegisterRoutes.js';
 import LoginRoutes from './routes/LoginRoutes.js';
+import Contact from './models/Contact.js';
+import User from './models/Register.js';
+import LoginAttempt from './models/Login.js';
+
 const app = express();
 const port = process.env.PORT || 3032;
 const mongoURI = process.env.MONGODB_URI;
+
+async function ensureMongoCollections() {
+  if (!mongoose.connection.db) return;
+
+  const existingCollections = await mongoose.connection.db.listCollections().toArray();
+  const existingNames = new Set(existingCollections.map((collection) => collection.name));
+  const requiredModels = [Contact, User, LoginAttempt];
+
+  for (const model of requiredModels) {
+    const collectionName = model.collection.collectionName;
+    if (!existingNames.has(collectionName)) {
+      await mongoose.connection.db.createCollection(collectionName);
+      console.log(`Created MongoDB collection: ${collectionName}`);
+    }
+  }
+}
+
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
@@ -15,7 +36,10 @@ mongoose
   .connect(mongoURI, {
     serverSelectionTimeoutMS: 5000,
   })
-  .then(() => console.log('Connected to MongoDB successfully!'))
+  .then(async () => {
+    console.log('Connected to MongoDB successfully!');
+    await ensureMongoCollections();
+  })
   .catch((error) => console.error('MongoDB connection error:', error.message));
 
 app.get('/api/health', (req, res) => {
@@ -29,7 +53,6 @@ app.get('/api/health', (req, res) => {
 app.use('/api/contact', ContactRoutes);
 app.use('/api/auth/register', RegisterRoutes);
 app.use('/api/auth/login', LoginRoutes);
-
 
 app.use((req, res) => {
   res.status(404).json({

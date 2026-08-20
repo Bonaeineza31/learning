@@ -184,17 +184,50 @@ export function Navbar() {
 
               <div className="form-group">
                 <label htmlFor="password">Password</label>
-                <div className="password-row">
-                  <input type={showLoginPassword ? 'text' : 'password'} id="password" name="password" placeholder="Enter your password" value={loginForm.password} onChange={handleLoginInputChange} required />
-                  <button type="button" className="eye-btn" aria-pressed={showLoginPassword} aria-label="Toggle password visibility" onClick={() => setShowLoginPassword((s) => !s)}>{showLoginPassword ? '👁️' : '👁'}</button>
+                <div className="password-input-wrap">
+                  <input
+                    type={showLoginPassword ? 'text' : 'password'}
+                    id="password"
+                    name="password"
+                    className="auth-input"
+                    placeholder="Enter your password"
+                    value={loginForm.password}
+                    onChange={handleLoginInputChange}
+                    required
+                  />
+                  <button
+                    type="button"
+                    className={`eye-btn ${showLoginPassword ? 'visible' : 'hidden'}`}
+                    aria-label={showLoginPassword ? 'Hide password' : 'Show password'}
+                    aria-pressed={showLoginPassword}
+                    onClick={() => setShowLoginPassword((s) => !s)}
+                  >
+                    {showLoginPassword ? '👁️' : '🙈'}
+                  </button>
                 </div>
               </div>
 
               <div className="form-group">
                 <label htmlFor="confirmPasswordLogin">Confirm Password</label>
-                <div className="password-row">
-                  <input type={showLoginConfirm ? 'text' : 'password'} id="confirmPasswordLogin" name="confirmPassword" placeholder="Confirm your password" value={loginForm.confirmPassword} onChange={handleLoginInputChange} />
-                  <button type="button" className="eye-btn" aria-pressed={showLoginConfirm} aria-label="Toggle confirm password visibility" onClick={() => setShowLoginConfirm((s) => !s)}>{showLoginConfirm ? '👁️' : '👁'}</button>
+                <div className="password-input-wrap">
+                  <input
+                    type={showLoginConfirm ? 'text' : 'password'}
+                    id="confirmPasswordLogin"
+                    name="confirmPassword"
+                    className="auth-input"
+                    placeholder="Confirm your password"
+                    value={loginForm.confirmPassword}
+                    onChange={handleLoginInputChange}
+                  />
+                  <button
+                    type="button"
+                    className={`eye-btn ${showLoginConfirm ? 'visible' : 'hidden'}`}
+                    aria-label={showLoginConfirm ? 'Hide confirm password' : 'Show confirm password'}
+                    aria-pressed={showLoginConfirm}
+                    onClick={() => setShowLoginConfirm((s) => !s)}
+                  >
+                    {showLoginConfirm ? '👁️' : '🙈'}
+                  </button>
                 </div>
               </div>
 
@@ -234,18 +267,52 @@ export function Navbar() {
 
               <div className="form-group">
                 <label htmlFor="reg-password">Password</label>
-                <div className="password-row">
-                  <input id="reg-password" name="password" type={showRegisterPassword ? 'text' : 'password'} placeholder="Choose a secure password" value={registerForm.password} onChange={handleRegisterInputChange} required />
-                  <button type="button" className="eye-btn" aria-pressed={showRegisterPassword} aria-label="Toggle password visibility" onClick={() => setShowRegisterPassword((s) => !s)}>{showRegisterPassword ? '👁️' : '👁'}</button>
+                <div className="password-input-wrap">
+                  <input
+                    id="reg-password"
+                    name="password"
+                    type={showRegisterPassword ? 'text' : 'password'}
+                    className="auth-input"
+                    placeholder="Choose a secure password"
+                    value={registerForm.password}
+                    onChange={handleRegisterInputChange}
+                    required
+                  />
+                  <button
+                    type="button"
+                    className={`eye-btn ${showRegisterPassword ? 'visible' : 'hidden'}`}
+                    aria-label={showRegisterPassword ? 'Hide password' : 'Show password'}
+                    aria-pressed={showRegisterPassword}
+                    onClick={() => setShowRegisterPassword((s) => !s)}
+                  >
+                    {showRegisterPassword ? '👁️' : '🙈'}
+                  </button>
                 </div>
                 {registerErrors.password && <small className="error-text">{registerErrors.password}</small>}
               </div>
 
               <div className="form-group">
                 <label htmlFor="confirmPassword">Confirm Password</label>
-                <div className="password-row">
-                  <input id="confirmPassword" name="confirmPassword" type={showRegisterPassword ? 'text' : 'password'} placeholder="Repeat your password" value={registerForm.confirmPassword} onChange={handleRegisterInputChange} required />
-                  <button type="button" className="eye-btn" aria-pressed={showRegisterPassword} aria-label="Toggle confirm password visibility" onClick={() => setShowRegisterPassword((s) => !s)}>{showRegisterPassword ? '👁️' : '👁'}</button>
+                <div className="password-input-wrap">
+                  <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showRegisterPassword ? 'text' : 'password'}
+                    className="auth-input"
+                    placeholder="Repeat your password"
+                    value={registerForm.confirmPassword}
+                    onChange={handleRegisterInputChange}
+                    required
+                  />
+                  <button
+                    type="button"
+                    className={`eye-btn ${showRegisterPassword ? 'visible' : 'hidden'}`}
+                    aria-label={showRegisterPassword ? 'Hide confirm password' : 'Show confirm password'}
+                    aria-pressed={showRegisterPassword}
+                    onClick={() => setShowRegisterPassword((s) => !s)}
+                  >
+                    {showRegisterPassword ? '👁️' : '🙈'}
+                  </button>
                 </div>
                 {registerErrors.confirmPassword && <small className="error-text">{registerErrors.confirmPassword}</small>}
               </div>

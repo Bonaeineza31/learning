@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs';
 import User from '../models/Register.js';
 
 export const registerUser = async (req, res) => {
@@ -20,15 +19,13 @@ export const registerUser = async (req, res) => {
     const existing = await User.findOne({ email: cleanEmail });
     if (existing) return res.status(409).json({ success: false, message: 'Email already registered' });
 
-    const salt = await bcrypt.genSalt(10);
-    const hash = await bcrypt.hash(cleanPassword, salt);
-
-    const user = new User({ username: cleanUsername, email: cleanEmail, password: hash, phone: cleanPhone || undefined });
+    // Let the model pre-save hook hash the password
+    const user = new User({ username: cleanUsername, email: cleanEmail, password: cleanPassword, phone: cleanPhone || undefined });
     await user.save();
 
     return res.status(201).json({ success: true, message: 'Registered successfully', data: { id: user._id, username: user.username, email: user.email } });
   } catch (error) {
-    console.error('Register error:', error.message);
-    return res.status(500).json({ success: false, message: 'Registration failed' });
+    console.error('Register error:', error);
+    return res.status(500).json({ success: false, message: error.message || 'Registration failed' });
   }
 };
