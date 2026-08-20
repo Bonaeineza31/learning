@@ -4,6 +4,7 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import ContactRoutes from './routes/ContactRoutes.js';
 import LoginRoutes from './routes/LoginRoutes.js';
+import ProductRoutes from './routes/ProductRoutes.js';
 
 const app = express();
 const port = process.env.PORT || 3032;
@@ -29,6 +30,7 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/contact', ContactRoutes);
 app.use('/api/login', LoginRoutes);
+app.use ('/api/products', ProductRoutes);
 
 app.use((req, res) => {
   res.status(404).json({
