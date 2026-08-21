@@ -1,7 +1,7 @@
 import { useState } from 'preact/hooks'
 import '../styles/Navbar.css'
 
-export function Navbar() {
+export function Navbar({ isLoggedIn, userName, userRole, onLogout, onLogin }) {
   const [isLoginOpen, setIsLoginOpen] = useState(false)
   const [isRegisterOpen, setIsRegisterOpen] = useState(false)
   const [loginForm, setLoginForm] = useState({ email: '', password: '' })
@@ -16,10 +16,6 @@ export function Navbar() {
   const [registerError, setRegisterError] = useState('')
   const [loginLoading, setLoginLoading] = useState(false)
   const [registerLoading, setRegisterLoading] = useState(false)
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [userName, setUserName] = useState('')
-  const [userRole, setUserRole] = useState('')
-  const [authToken, setAuthToken] = useState('')
 
   const handleLoginInputChange = (e) => {
     const { name, value } = e.target
@@ -71,10 +67,7 @@ export function Navbar() {
         throw new Error(result.message || 'Login failed. Please try again.')
       }
 
-      setIsLoggedIn(true)
-      setUserName(result.data.name)
-      setUserRole(result.data.role)
-      setAuthToken(result.token)
+      onLogin(result.data.name, result.data.role, result.token)
       setLoginForm({ email: '', password: '' })
       setIsLoginOpen(false)
     } catch (error) {
@@ -154,11 +147,8 @@ export function Navbar() {
     }
   }
 
-  const handleLogout = () => {
-    setIsLoggedIn(false)
-    setUserName('')
-    setUserRole('')
-    setAuthToken('')
+  const handleLogoutClick = () => {
+    onLogout()
     setLoginForm({ email: '', password: '' })
     setRegisterForm({ name: '', email: '', password: '', confirmPassword: '', role: 'standard' })
   }
@@ -187,6 +177,7 @@ export function Navbar() {
         <div className="navbar-links">
           <a href="#home" className="nav-link">Home</a>
           <a href="#contacts" className="nav-link">Contacts</a>
+          <a href="#products" className="nav-link">Products</a>
         </div>
 
         <div className="navbar-auth">
@@ -205,7 +196,7 @@ export function Navbar() {
                   <polyline points="8 12 11 15 16 9" stroke="#fff" />
                 </svg>
               </span>
-              <button className="btn-logout" onClick={handleLogout}>
+              <button className="btn-logout" onClick={handleLogoutClick}>
                 Logout
               </button>
             </div>
@@ -213,148 +204,71 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* Login Modal */}
       {isLoginOpen && (
         <div className="login-modal" onClick={() => setIsLoginOpen(false)}>
           <div className="login-form-container" onClick={(e) => e.stopPropagation()}>
             <div className="login-header">
               <h2>Login to Your Account</h2>
-              <button className="close-btn" onClick={() => setIsLoginOpen(false)}>
-                ✕
-              </button>
+              <button className="close-btn" onClick={() => setIsLoginOpen(false)}>✕</button>
             </div>
-
             <form onSubmit={handleLoginSubmit} className="login-form">
               <div className="form-group">
                 <label htmlFor="login-email">Email Address</label>
-                <input
-                  type="email"
-                  id="login-email"
-                  name="email"
-                  placeholder="Enter your email"
-                  value={loginForm.email}
-                  onInput={handleLoginInputChange}
-                />
+                <input type="email" id="login-email" name="email" placeholder="Enter your email" value={loginForm.email} onInput={handleLoginInputChange} />
               </div>
-
               <div className="form-group">
                 <label htmlFor="login-password">Password</label>
-                <input
-                  type="password"
-                  id="login-password"
-                  name="password"
-                  placeholder="Enter your password"
-                  value={loginForm.password}
-                  onInput={handleLoginInputChange}
-                />
+                <input type="password" id="login-password" name="password" placeholder="Enter your password" value={loginForm.password} onInput={handleLoginInputChange} />
               </div>
-
               {loginError && <div className="error-message">{loginError}</div>}
-
               <button type="submit" className="btn-submit" disabled={loginLoading}>
                 {loginLoading ? 'Logging in...' : 'Login'}
               </button>
-
               <div className="login-footer">
-                <p>
-                  Don't have an account?{' '}
-                  <span className="signup-link" onClick={switchToRegister}>
-                    Sign up here
-                  </span>
-                </p>
+                <p>Don't have an account?{' '}<span className="signup-link" onClick={switchToRegister}>Sign up here</span></p>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* Register Modal */}
       {isRegisterOpen && (
         <div className="login-modal" onClick={() => setIsRegisterOpen(false)}>
           <div className="login-form-container" onClick={(e) => e.stopPropagation()}>
             <div className="login-header">
               <h2>Create an Account</h2>
-              <button className="close-btn" onClick={() => setIsRegisterOpen(false)}>
-                ✕
-              </button>
+              <button className="close-btn" onClick={() => setIsRegisterOpen(false)}>✕</button>
             </div>
-
             <form onSubmit={handleRegisterSubmit} className="login-form">
               <div className="form-group">
                 <label htmlFor="register-name">Full Name</label>
-                <input
-                  type="text"
-                  id="register-name"
-                  name="name"
-                  placeholder="Enter your full name"
-                  value={registerForm.name}
-                  onInput={handleRegisterInputChange}
-                />
+                <input type="text" id="register-name" name="name" placeholder="Enter your full name" value={registerForm.name} onInput={handleRegisterInputChange} />
               </div>
-
               <div className="form-group">
                 <label htmlFor="register-email">Email Address</label>
-                <input
-                  type="email"
-                  id="register-email"
-                  name="email"
-                  placeholder="Enter your email"
-                  value={registerForm.email}
-                  onInput={handleRegisterInputChange}
-                />
+                <input type="email" id="register-email" name="email" placeholder="Enter your email" value={registerForm.email} onInput={handleRegisterInputChange} />
               </div>
-
               <div className="form-group">
                 <label htmlFor="register-role">Account Type</label>
-                <select
-                  id="register-role"
-                  name="role"
-                  value={registerForm.role}
-                  onChange={handleRegisterInputChange}
-                  className="select-input"
-                >
+                <select id="register-role" name="role" value={registerForm.role} onChange={handleRegisterInputChange} className="select-input">
                   <option value="standard">Standard User</option>
                   <option value="admin">Admin</option>
                 </select>
               </div>
-
               <div className="form-group">
                 <label htmlFor="register-password">Password</label>
-                <input
-                  type="password"
-                  id="register-password"
-                  name="password"
-                  placeholder="Create a password (min 6 characters)"
-                  value={registerForm.password}
-                  onInput={handleRegisterInputChange}
-                />
+                <input type="password" id="register-password" name="password" placeholder="Create a password (min 6 characters)" value={registerForm.password} onInput={handleRegisterInputChange} />
               </div>
-
               <div className="form-group">
                 <label htmlFor="register-confirm-password">Confirm Password</label>
-                <input
-                  type="password"
-                  id="register-confirm-password"
-                  name="confirmPassword"
-                  placeholder="Confirm your password"
-                  value={registerForm.confirmPassword}
-                  onInput={handleRegisterInputChange}
-                />
+                <input type="password" id="register-confirm-password" name="confirmPassword" placeholder="Confirm your password" value={registerForm.confirmPassword} onInput={handleRegisterInputChange} />
               </div>
-
               {registerError && <div className="error-message">{registerError}</div>}
-
               <button type="submit" className="btn-submit" disabled={registerLoading}>
                 {registerLoading ? 'Creating Account...' : 'Register'}
               </button>
-
               <div className="login-footer">
-                <p>
-                  Already have an account?{' '}
-                  <span className="signup-link" onClick={switchToLogin}>
-                    Login here
-                  </span>
-                </p>
+                <p>Already have an account?{' '}<span className="signup-link" onClick={switchToLogin}>Login here</span></p>
               </div>
             </form>
           </div>
