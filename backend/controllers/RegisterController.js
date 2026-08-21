@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import Auth from '../models/auth.js';
 
 export const registerUser = async (req, res) => {
@@ -52,9 +53,16 @@ export const registerUser = async (req, res) => {
 
     await user.save();
 
+    const token = jwt.sign(
+      { id: user._id, name: user.name, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
     return res.status(201).json({
       success: true,
       message: 'Account created successfully',
+      token,
       data: {
         _id: user._id,
         name: user.name,
