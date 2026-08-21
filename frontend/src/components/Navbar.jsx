@@ -10,6 +10,7 @@ export function Navbar() {
     email: '',
     password: '',
     confirmPassword: '',
+    role: 'standard',
   })
   const [loginError, setLoginError] = useState('')
   const [registerError, setRegisterError] = useState('')
@@ -17,6 +18,8 @@ export function Navbar() {
   const [registerLoading, setRegisterLoading] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [userName, setUserName] = useState('')
+  const [userRole, setUserRole] = useState('')
+  const [authToken, setAuthToken] = useState('')
 
   const handleLoginInputChange = (e) => {
     const { name, value } = e.target
@@ -70,6 +73,8 @@ export function Navbar() {
 
       setIsLoggedIn(true)
       setUserName(result.data.name)
+      setUserRole(result.data.role)
+      setAuthToken(result.token)
       setLoginForm({ email: '', password: '' })
       setIsLoginOpen(false)
     } catch (error) {
@@ -125,6 +130,7 @@ export function Navbar() {
           name: trimmedName,
           email: trimmedEmail,
           password: registerForm.password,
+          role: registerForm.role,
         }),
       })
 
@@ -137,7 +143,7 @@ export function Navbar() {
         throw new Error(result.message || 'Registration failed. Please try again.')
       }
 
-      setRegisterForm({ name: '', email: '', password: '', confirmPassword: '' })
+      setRegisterForm({ name: '', email: '', password: '', confirmPassword: '', role: 'standard' })
       setIsRegisterOpen(false)
       setLoginError('')
       setIsLoginOpen(true)
@@ -151,8 +157,10 @@ export function Navbar() {
   const handleLogout = () => {
     setIsLoggedIn(false)
     setUserName('')
+    setUserRole('')
+    setAuthToken('')
     setLoginForm({ email: '', password: '' })
-    setRegisterForm({ name: '', email: '', password: '', confirmPassword: '' })
+    setRegisterForm({ name: '', email: '', password: '', confirmPassword: '', role: 'standard' })
   }
 
   const switchToRegister = () => {
@@ -165,7 +173,7 @@ export function Navbar() {
   const switchToLogin = () => {
     setIsRegisterOpen(false)
     setRegisterError('')
-    setRegisterForm({ name: '', email: '', password: '', confirmPassword: '' })
+    setRegisterForm({ name: '', email: '', password: '', confirmPassword: '', role: 'standard' })
     setIsLoginOpen(true)
   }
 
@@ -188,6 +196,9 @@ export function Navbar() {
             </button>
           ) : (
             <div className="user-menu">
+              <span className="role-badge" data-role={userRole}>
+                {userRole === 'admin' ? 'Admin' : 'Standard'}
+              </span>
               <span className="logged-in-icon" title={userName}>
                 <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                   <circle cx="12" cy="12" r="10" fill="#22c55e" stroke="none" />
@@ -291,6 +302,20 @@ export function Navbar() {
                   value={registerForm.email}
                   onInput={handleRegisterInputChange}
                 />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="register-role">Account Type</label>
+                <select
+                  id="register-role"
+                  name="role"
+                  value={registerForm.role}
+                  onChange={handleRegisterInputChange}
+                  className="select-input"
+                >
+                  <option value="standard">Standard User</option>
+                  <option value="admin">Admin</option>
+                </select>
               </div>
 
               <div className="form-group">

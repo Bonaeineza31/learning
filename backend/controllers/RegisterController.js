@@ -4,12 +4,13 @@ import Auth from '../models/auth.js';
 
 export const registerUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
 
     const errors = [];
     const cleanName = typeof name === 'string' ? name.trim() : '';
     const cleanEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
     const cleanPassword = typeof password === 'string' ? password : '';
+    const cleanRole = typeof role === 'string' ? role.trim().toLowerCase() : 'standard';
 
     if (!cleanName) {
       errors.push('Name is required');
@@ -31,6 +32,10 @@ export const registerUser = async (req, res) => {
       errors.push('Password must be at least 6 characters');
     }
 
+    if (cleanRole && !['admin', 'standard'].includes(cleanRole)) {
+      errors.push('Role must be either admin or standard');
+    }
+
     if (errors.length > 0) {
       return res.status(400).json({ success: false, errors });
     }
@@ -49,12 +54,13 @@ export const registerUser = async (req, res) => {
       name: cleanName,
       email: cleanEmail,
       password: hashedPassword,
+      role: cleanRole,
     });
 
     await user.save();
 
     const token = jwt.sign(
-      { id: user._id, name: user.name, email: user.email },
+      { id: user._id, name: user.name, email: user.email, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -67,6 +73,7 @@ export const registerUser = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
         createdAt: user.createdAt,
       },
     });
