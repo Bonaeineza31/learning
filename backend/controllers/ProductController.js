@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Product from '../models/Product.js';
 
 export const createProduct = async (req, res) => {
@@ -63,6 +64,10 @@ export const getProducts = async (req, res) => {
 
 export const getProduct = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, message: 'Invalid product ID' });
+    }
+
     const product = await Product.findById(req.params.id).lean();
 
     if (!product) {
@@ -86,6 +91,10 @@ export const getProduct = async (req, res) => {
 
 export const updateProduct = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, message: 'Invalid product ID' });
+    }
+
     const { name, quantity } = req.body;
     const errors = [];
 
@@ -132,6 +141,7 @@ export const updateProduct = async (req, res) => {
       data: product,
     });
   } catch (error) {
+    console.error('Update product error:', error);
     return res.status(500).json({
       success: false,
       message: 'Unable to update product right now',
@@ -141,6 +151,10 @@ export const updateProduct = async (req, res) => {
 
 export const deleteProduct = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, message: 'Invalid product ID' });
+    }
+
     const product = await Product.findByIdAndDelete(req.params.id).lean();
 
     if (!product) {
@@ -156,6 +170,7 @@ export const deleteProduct = async (req, res) => {
       data: product,
     });
   } catch (error) {
+    console.error('Delete product error:', error);
     return res.status(500).json({
       success: false,
       message: 'Unable to delete product right now',
