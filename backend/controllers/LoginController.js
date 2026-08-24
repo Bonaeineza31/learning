@@ -1,6 +1,18 @@
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import User from '../models/Register.js';
 import LoginAttempt from '../models/Login.js';
+
+const createToken = (user) => jwt.sign(
+  {
+    id: user._id,
+    email: user.email,
+    username: user.username,
+    role: user.role || 'user',
+  },
+  process.env.JWT_SECRET || 'contact-app-secret',
+  { expiresIn: '7d' }
+);
 
 export const loginUser = async (req, res) => {
   try {
@@ -25,7 +37,14 @@ export const loginUser = async (req, res) => {
 
     if (!isMatch) return res.status(401).json({ success: false, message: 'Invalid credentials' });
 
-    return res.status(200).json({ success: true, message: 'Login successful', data: { id: user._id, username: user.username, email: user.email } });
+    const token = createToken(user);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Login successful',
+      token,
+      data: { id: user._id, username: user.username, email: user.email, role: user.role || 'user' }
+    });
   } catch (error) {
     console.error('Login error:', error.message);
     return res.status(500).json({ success: false, message: 'Login failed' });

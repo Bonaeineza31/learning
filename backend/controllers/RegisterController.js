@@ -1,4 +1,16 @@
+import jwt from 'jsonwebtoken';
 import User from '../models/Register.js';
+
+const createToken = (user) => jwt.sign(
+  {
+    id: user._id,
+    email: user.email,
+    username: user.username,
+    role: user.role || 'user',
+  },
+  process.env.JWT_SECRET || 'contact-app-secret',
+  { expiresIn: '7d' }
+);
 
 export const registerUser = async (req, res) => {
   try {
@@ -19,11 +31,17 @@ export const registerUser = async (req, res) => {
     const existing = await User.findOne({ email: cleanEmail });
     if (existing) return res.status(409).json({ success: false, message: 'Email already registered' });
 
-    // Let the model pre-save hook hash the password
-    const user = new User({ username: cleanUsername, email: cleanEmail, password: cleanPassword, phone: cleanPhone || undefined });
+    const user = new User({ username: cleanUsername, email: cleanEmail, password: cleanPassword, phone: cleanPhone || undefined, role: 'user' });
     await user.save();
 
-    return res.status(201).json({ success: true, message: 'Registered successfully', data: { id: user._id, username: user.username, email: user.email } });
+    const token = createToken(user);
+
+    return res.status(201).json({
+      success: true,
+      message: 'Registered successfully',
+      token,
+      data: { id: user._id, username: user.username, email: user.email, role: user.role || 'user' }
+    });
   } catch (error) {
     console.error('Register error:', error);
     return res.status(500).json({ success: false, message: error.message || 'Registration failed' });

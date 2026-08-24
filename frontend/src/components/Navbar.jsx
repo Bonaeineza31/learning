@@ -1,4 +1,5 @@
 import { useState } from 'preact/hooks'
+import { ProductDashboard } from './ProductDashboard'
 import '../styles/Navbar.css'
 
 export function Navbar() {
@@ -8,6 +9,7 @@ export function Navbar() {
   const [loginError, setLoginError] = useState('')
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [userName, setUserName] = useState('')
+  const [userRole, setUserRole] = useState('')
 
   const [showLoginPassword, setShowLoginPassword] = useState(false)
   const [showLoginConfirm, setShowLoginConfirm] = useState(false)
@@ -64,6 +66,8 @@ export function Navbar() {
 
       setIsLoggedIn(true)
       setUserName(data.data?.username || loginForm.email.split('@')[0])
+      setUserRole(data.data?.role || 'user')
+      localStorage.setItem('authToken', data.token)
       setLoginForm({ email: '', password: '', confirmPassword: '' })
       setIsLoginOpen(false)
     } catch (err) {
@@ -74,7 +78,9 @@ export function Navbar() {
   const handleLogout = () => {
     setIsLoggedIn(false)
     setUserName('')
+    setUserRole('')
     setLoginForm({ email: '', password: '' })
+    localStorage.removeItem('authToken')
   }
 
   const handleRegisterInputChange = (e) => {
@@ -141,6 +147,11 @@ export function Navbar() {
     } catch (err) {
       setRegisterStatus({ loading: false, success: '', error: 'Unable to reach server' })
     }
+  }
+
+  // Show ProductDashboard if logged in
+  if (isLoggedIn) {
+    return <ProductDashboard userName={userName} userRole={userRole} onLogout={handleLogout} />
   }
 
   return (
