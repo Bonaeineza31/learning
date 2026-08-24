@@ -1,8 +1,8 @@
-import { useState } from 'preact/hooks'
+import { useState, useEffect } from 'preact/hooks'
 import { ProductDashboard } from './ProductDashboard'
 import '../styles/Navbar.css'
 
-export function Navbar() {
+export function Navbar({ onLoginChange }) {
   const [isLoginOpen, setIsLoginOpen] = useState(false)
   // include confirmPassword for login as requested
   const [loginForm, setLoginForm] = useState({ email: '', password: '', confirmPassword: '' })
@@ -18,6 +18,15 @@ export function Navbar() {
   const [registerErrors, setRegisterErrors] = useState({})
   const [registerStatus, setRegisterStatus] = useState({ loading: false, success: '', error: '' })
   const [showRegisterPassword, setShowRegisterPassword] = useState(false)
+
+  // Check if user is already logged in from localStorage
+  useEffect(() => {
+    const token = localStorage.getItem('authToken')
+    if (token) {
+      setIsLoggedIn(true)
+      if (onLoginChange) onLoginChange(true)
+    }
+  }, [])
 
   const handleLoginInputChange = (e) => {
     const { name, value } = e.target
@@ -70,6 +79,7 @@ export function Navbar() {
       localStorage.setItem('authToken', data.token)
       setLoginForm({ email: '', password: '', confirmPassword: '' })
       setIsLoginOpen(false)
+      if (onLoginChange) onLoginChange(true)
     } catch (err) {
       setLoginError('Unable to reach server')
     }
@@ -81,6 +91,7 @@ export function Navbar() {
     setUserRole('')
     setLoginForm({ email: '', password: '' })
     localStorage.removeItem('authToken')
+    if (onLoginChange) onLoginChange(false)
   }
 
   const handleRegisterInputChange = (e) => {

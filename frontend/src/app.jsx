@@ -10,12 +10,21 @@ const initialForm = {
 }
 
 export function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [form, setForm] = useState(initialForm)
   const [errors, setErrors] = useState({})
   const [status, setStatus] = useState({ loading: false, success: '', error: '' })
   const [contacts, setContacts] = useState([])
   const [loadingContacts, setLoadingContacts] = useState(true)
   const [contactsError, setContactsError] = useState('')
+
+  // Check if user is logged in from localStorage
+  useEffect(() => {
+    const token = localStorage.getItem('authToken')
+    if (token) {
+      setIsLoggedIn(true)
+    }
+  }, [])
 
   const loadContacts = async () => {
     try {
@@ -163,7 +172,8 @@ export function App() {
 
   return (
     <>
-      <Navbar />
+      <Navbar onLoginChange={setIsLoggedIn} />
+      {!isLoggedIn && (
       <main class="contact-page">
       <section class="contact-shell">
         <div class="contact-header">
@@ -294,7 +304,8 @@ export function App() {
           </aside>
         </div>
       </section>
-    </main>
+      </main>
+      )}
     </>
   )
 }
