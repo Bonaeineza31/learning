@@ -8,19 +8,20 @@ export function Products({ token, userRole }) {
   const [loading, setLoading] = useState(true)
   const [productsError, setProductsError] = useState('')
   const [form, setForm] = useState(initialProductForm)
+  const [formImage, setFormImage] = useState(null)
+  const [formImagePreview, setFormImagePreview] = useState('')
   const [formError, setFormError] = useState('')
   const [formLoading, setFormLoading] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [editForm, setEditForm] = useState(initialProductForm)
+  const [editImage, setEditImage] = useState(null)
+  const [editImagePreview, setEditImagePreview] = useState('')
   const [editError, setEditError] = useState('')
   const [editLoading, setEditLoading] = useState(false)
 
   const isAdmin = userRole === 'admin'
 
-  const authHeaders = () => ({
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
-  })
+  const authHeaders = () => ({ Authorization: `Bearer ${token}` })
 
   const loadProducts = async () => {
     try {
@@ -42,6 +43,28 @@ export function Products({ token, userRole }) {
     if (token) loadProducts()
   }, [token])
 
+  const handleImageChange = (e, isEdit = false) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!file.type.startsWith('image/')) {
+      const errSetter = isEdit ? setEditError : setFormError
+      errSetter('Please select a valid image file')
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      const errSetter = isEdit ? setEditError : setFormError
+      errSetter('Image must be less than 5MB')
+      return
+    }
+    if (isEdit) {
+      setEditImage(file)
+      setEditImagePreview(URL.createObjectURL(file))
+    } else {
+      setFormImage(file)
+      setFormImagePreview(URL.createObjectURL(file))
+    }
+  }
+
   const handleCreate = async (e) => {
     e.preventDefault()
     setFormError('')
@@ -56,13 +79,20 @@ export function Products({ token, userRole }) {
 
     setFormLoading(true)
     try {
-      const response = await fetch('/api/products', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ name, quantity }) })
+      const formData = new FormData()
+      formData.append('name', name)
+      formData.append('quantity', quantity)
+      if (formImage) formData.append('image', formImage)
+
+      const response = await fetch('/api/products', { method: 'POST', headers: authHeaders(), body: formData })
       const result = await response.json().catch(() => ({}))
       if (!response.ok) {
         if (Array.isArray(result.errors) && result.errors.length > 0) throw new Error(result.errors.join(', '))
         throw new Error(result.message || 'Failed to create product.')
       }
       setForm(initialProductForm)
+      setFormImage(null)
+      setFormImagePreview('')
       await loadProducts()
     } catch (error) {
       setFormError(error.message)
@@ -74,12 +104,16 @@ export function Products({ token, userRole }) {
   const startEdit = (product) => {
     setEditingId(product._id)
     setEditForm({ name: product.name, quantity: String(product.quantity) })
+    setEditImagePreview(product.image || '')
+    setEditImage(null)
     setEditError('')
   }
 
   const cancelEdit = () => {
     setEditingId(null)
     setEditForm(initialProductForm)
+    setEditImage(null)
+    setEditImagePreview('')
     setEditError('')
   }
 
@@ -97,7 +131,12 @@ export function Products({ token, userRole }) {
 
     setEditLoading(true)
     try {
-      const response = await fetch(`/api/products/${editingId}`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify({ name, quantity }) })
+      const formData = new FormData()
+      formData.append('name', name)
+      formData.append('quantity', quantity)
+      if (editImage) formData.append('image', editImage)
+
+      const response = await fetch(`/api/products/${editingId}`, { method: 'PUT', headers: authHeaders(), body: formData })
       const result = await response.json().catch(() => ({}))
       if (!response.ok) {
         if (Array.isArray(result.errors) && result.errors.length > 0) throw new Error(result.errors.join(', '))
@@ -147,6 +186,15 @@ export function Products({ token, userRole }) {
                   <label htmlFor="edit-quantity">Quantity</label>
                   <input id="edit-quantity" type="number" min="0" value={editForm.quantity} onInput={(e) => setEditForm((p) => ({ ...p, quantity: e.target.value }))} placeholder="0" class="input" />
                 </div>
+                <div class="field">
+                  <label htmlFor="edit-image">Product Image</label>
+                  <label class="file-label">
+                    <input id="edit-image" type="file" accept="image/*" onChange={(e) => handleImageChange(e, true)} class="file-input" />
+                    <span class="file-btn">Choose Image</span>
+                    {editImage && <span class="file-name">{editImage.name}</span>}
+                  </label>
+                  {editImagePreview && <img src={editImagePreview} alt="Preview" class="image-preview" />}
+                </div>
                 {editError && <div class="form-error">{editError}</div>}
                 <div class="form-actions">
                   <button type="submit" class="btn-primary" disabled={editLoading}>
@@ -164,6 +212,15 @@ export function Products({ token, userRole }) {
                 <div class="field">
                   <label htmlFor="create-quantity">Quantity</label>
                   <input id="create-quantity" type="number" min="0" value={form.quantity} onInput={(e) => setForm((p) => ({ ...p, quantity: e.target.value }))} placeholder="0" class="input" />
+                </div>
+                <div class="field">
+                  <label htmlFor="create-image">Product Image</label>
+                  <label class="file-label">
+                    <input id="create-image" type="file" accept="image/*" onChange={(e) => handleImageChange(e, false)} class="file-input" />
+                    <span class="file-btn">Choose Image</span>
+                    {formImage && <span class="file-name">{formImage.name}</span>}
+                  </label>
+                  {formImagePreview && <img src={formImagePreview} alt="Preview" class="image-preview" />}
                 </div>
                 {formError && <div class="form-error">{formError}</div>}
                 <button type="submit" class="btn-primary" disabled={formLoading}>
@@ -186,30 +243,28 @@ export function Products({ token, userRole }) {
             )}
 
             {!loading && !productsError && products.length > 0 && (
-              <div class="product-table-wrap">
-                <table class="product-table">
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Quantity</th>
-                      {isAdmin && <th>Actions</th>}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {products.map((product) => (
-                      <tr key={product._id}>
-                        <td class="product-name">{product.name}</td>
-                        <td class="product-qty">{product.quantity}</td>
-                        {isAdmin && (
-                          <td class="product-actions">
-                            <button class="btn-edit" onClick={() => startEdit(product)}>Edit</button>
-                            <button class="btn-delete" onClick={() => handleDelete(product._id)}>Delete</button>
-                          </td>
-                        )}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div class="product-grid">
+                {products.map((product) => (
+                  <div class="product-card" key={product._id}>
+                    {product.image && (
+                      <div class="product-image-wrap">
+                        <img src={product.image} alt={product.name} class="product-image" />
+                      </div>
+                    )}
+                    <div class="product-card-body">
+                      <div class="product-card-info">
+                        <span class="product-card-name">{product.name}</span>
+                        <span class="product-card-qty">Qty: {product.quantity}</span>
+                      </div>
+                      {isAdmin && (
+                        <div class="product-card-actions">
+                          <button class="btn-edit" onClick={() => startEdit(product)}>Edit</button>
+                          <button class="btn-delete" onClick={() => handleDelete(product._id)}>Delete</button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>

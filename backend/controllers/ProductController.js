@@ -4,6 +4,7 @@ import Product from '../models/Product.js';
 export const createProduct = async (req, res) => {
   try {
     const { name, quantity } = req.body;
+    const imageUrl = req.file?.path || req.file?.secure_url || req.body.image || '';
 
     const errors = [];
     const cleanName = typeof name === 'string' ? name.trim() : '';
@@ -21,6 +22,10 @@ export const createProduct = async (req, res) => {
       errors.push('Quantity must be a non-negative number');
     }
 
+    if (imageUrl && !/^https?:\/\//i.test(imageUrl)) {
+      errors.push('Product image must be a valid URL');
+    }
+
     if (errors.length > 0) {
       return res.status(400).json({ success: false, errors });
     }
@@ -28,6 +33,7 @@ export const createProduct = async (req, res) => {
     const product = new Product({
       name: cleanName,
       quantity: cleanQuantity,
+      image: imageUrl || undefined,
     });
 
     await product.save();
@@ -96,6 +102,7 @@ export const updateProduct = async (req, res) => {
     }
 
     const { name, quantity } = req.body;
+    const imageUrl = req.file?.path || req.file?.secure_url || req.body.image || undefined;
     const errors = [];
 
     if (name !== undefined) {
@@ -114,6 +121,10 @@ export const updateProduct = async (req, res) => {
       }
     }
 
+    if (imageUrl !== undefined && imageUrl !== null && imageUrl !== '' && !/^https?:\/\//i.test(imageUrl)) {
+      errors.push('Product image must be a valid URL');
+    }
+
     if (errors.length > 0) {
       return res.status(400).json({ success: false, errors });
     }
@@ -121,6 +132,7 @@ export const updateProduct = async (req, res) => {
     const update = {};
     if (name !== undefined) update.name = name.trim();
     if (quantity !== undefined) update.quantity = typeof quantity === 'number' ? quantity : parseInt(quantity, 10);
+    if (imageUrl !== undefined) update.image = imageUrl || undefined;
 
     const product = await Product.findByIdAndUpdate(
       req.params.id,

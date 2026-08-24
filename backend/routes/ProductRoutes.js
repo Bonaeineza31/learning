@@ -1,6 +1,7 @@
 import express from 'express';
 import auth from '../middleware/auth.js';
 import authorize from '../middleware/authorize.js';
+import upload from '../middleware/upload.js';
 import {
   createProduct,
   getProducts,
@@ -11,10 +12,10 @@ import {
 
 const router = express.Router();
 
-router.post('/', auth, authorize('admin', 'standard'), createProduct);
+router.post('/', auth, authorize('admin', 'standard'), upload.single('image'), createProduct);
 router.get('/', auth, authorize('admin', 'standard'), getProducts);
 router.get('/:id', auth, authorize('admin', 'standard'), getProduct);
-router.put('/:id', auth, authorize('admin'), updateProduct);
+router.put('/:id', auth, authorize('admin'), upload.single('image'), updateProduct);
 router.delete('/:id', auth, authorize('admin'), deleteProduct);
 
 export default router;
