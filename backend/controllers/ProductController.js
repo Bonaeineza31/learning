@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import Product from '../models/Product.js';
 
 export const createProduct = async (req, res) => {
@@ -30,13 +29,14 @@ export const createProduct = async (req, res) => {
       return res.status(400).json({ success: false, errors });
     }
 
-    const product = new Product({
+    const product = await Product.create({
       name: cleanName,
       quantity: cleanQuantity,
-      image: imageUrl || undefined,
+      image: imageUrl || '',
+      createdByUserId: req.user.id,
+      createdByName: req.user.name,
+      createdByEmail: req.user.email,
     });
-
-    await product.save();
 
     return res.status(201).json({
       success: true,
@@ -53,7 +53,9 @@ export const createProduct = async (req, res) => {
 
 export const getProducts = async (req, res) => {
   try {
-    const products = await Product.find().sort({ createdAt: -1 }).lean();
+    const products = await Product.findAll({
+      order: [['createdAt', 'DESC']],
+    });
 
     return res.status(200).json({
       success: true,
@@ -70,11 +72,7 @@ export const getProducts = async (req, res) => {
 
 export const getProduct = async (req, res) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ success: false, message: 'Invalid product ID' });
-    }
-
-    const product = await Product.findById(req.params.id).lean();
+    const product = await Product.findByPk(req.params.id);
 
     if (!product) {
       return res.status(404).json({
@@ -97,8 +95,12 @@ export const getProduct = async (req, res) => {
 
 export const updateProduct = async (req, res) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ success: false, message: 'Invalid product ID' });
+    const product = await Product.findByPk(req.params.id);
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found',
+      });
     }
 
     const { name, quantity } = req.body;
@@ -132,20 +134,9 @@ export const updateProduct = async (req, res) => {
     const update = {};
     if (name !== undefined) update.name = name.trim();
     if (quantity !== undefined) update.quantity = typeof quantity === 'number' ? quantity : parseInt(quantity, 10);
-    if (imageUrl !== undefined) update.image = imageUrl || undefined;
+    if (imageUrl !== undefined) update.image = imageUrl || '';
 
-    const product = await Product.findByIdAndUpdate(
-      req.params.id,
-      update,
-      { new: true, runValidators: true }
-    ).lean();
-
-    if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: 'Product not found',
-      });
-    }
+    await product.update(update);
 
     return res.status(200).json({
       success: true,
@@ -153,7 +144,6 @@ export const updateProduct = async (req, res) => {
       data: product,
     });
   } catch (error) {
-    console.error('Update product error:', error);
     return res.status(500).json({
       success: false,
       message: 'Unable to update product right now',
@@ -163,12 +153,7 @@ export const updateProduct = async (req, res) => {
 
 export const deleteProduct = async (req, res) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ success: false, message: 'Invalid product ID' });
-    }
-
-    const product = await Product.findByIdAndDelete(req.params.id).lean();
-
+    const product = await Product.findByPk(req.params.id);
     if (!product) {
       return res.status(404).json({
         success: false,
@@ -176,13 +161,14 @@ export const deleteProduct = async (req, res) => {
       });
     }
 
+    await product.destroy();
+
     return res.status(200).json({
       success: true,
       message: 'Product deleted successfully',
       data: product,
     });
   } catch (error) {
-    console.error('Delete product error:', error);
     return res.status(500).json({
       success: false,
       message: 'Unable to delete product right now',

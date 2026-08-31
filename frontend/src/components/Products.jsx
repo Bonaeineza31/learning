@@ -255,6 +255,9 @@ export function Products({ token, userRole }) {
                       <div class="product-card-info">
                         <span class="product-card-name">{product.name}</span>
                         <span class="product-card-qty">Qty: {product.quantity}</span>
+                        {product.createdBy && (
+                          <span class="product-card-by">Added by {product.createdBy.name}</span>
+                        )}
                       </div>
                       {isAdmin && (
                         <div class="product-card-actions">

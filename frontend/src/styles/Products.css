@@ -267,6 +267,13 @@
   font-weight: 500;
 }
 
+.product-card-by {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-weight: 500;
+  font-style: italic;
+}
+
 .product-card-actions {
   display: flex;
   gap: 6px;

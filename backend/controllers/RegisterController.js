@@ -40,7 +40,7 @@ export const registerUser = async (req, res) => {
       return res.status(400).json({ success: false, errors });
     }
 
-    const existingUser = await Auth.findOne({ email: cleanEmail });
+    const existingUser = await Auth.findOne({ where: { email: cleanEmail } });
     if (existingUser) {
       return res.status(409).json({
         success: false,
@@ -50,17 +50,15 @@ export const registerUser = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(cleanPassword, 10);
 
-    const user = new Auth({
+    const user = await Auth.create({
       name: cleanName,
       email: cleanEmail,
       password: hashedPassword,
       role: cleanRole,
     });
 
-    await user.save();
-
     const token = jwt.sign(
-      { id: user._id, name: user.name, email: user.email, role: user.role },
+      { id: user.id, name: user.name, email: user.email, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -70,7 +68,7 @@ export const registerUser = async (req, res) => {
       message: 'Account created successfully',
       token,
       data: {
-        _id: user._id,
+        id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,
@@ -87,10 +85,10 @@ export const registerUser = async (req, res) => {
 
 export const getUsers = async (req, res) => {
   try {
-    const users = await Auth.find()
-      .select('-password')
-      .sort({ createdAt: -1 })
-      .lean();
+    const users = await Auth.findAll({
+      attributes: { exclude: ['password'] },
+      order: [['createdAt', 'DESC']],
+    });
 
     return res.status(200).json({
       success: true,

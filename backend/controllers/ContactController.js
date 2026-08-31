@@ -32,14 +32,12 @@ export const createContact = async (req, res) => {
       return res.status(400).json({ success: false, errors });
     }
 
-    const contact = new Contact({
+    const contact = await Contact.create({
       name: cleanName,
       email: cleanEmail,
       message: cleanMessage,
-      phone: cleanPhone || undefined,
+      phone: cleanPhone || null,
     });
-
-    await contact.save();
 
     return res.status(201).json({
       success: true,
@@ -53,9 +51,12 @@ export const createContact = async (req, res) => {
     });
   }
 };
+
 export const getContacts = async (req, res) => {
   try {
-    const contacts = await Contact.find().sort({ createdAt: -1 }).lean();
+    const contacts = await Contact.findAll({
+      order: [['createdAt', 'DESC']],
+    });
 
     return res.status(200).json({
       success: true,

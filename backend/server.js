@@ -1,7 +1,7 @@
 import 'dotenv/config.js';
 import express from 'express';
 import cors from 'cors';
-import mongoose from 'mongoose';
+import sequelize from './config/database.js';
 import ContactRoutes from './routes/ContactRoutes.js';
 import LoginRoutes from './routes/LoginRoutes.js';
 import RegisterRoutes from './routes/RegisterRoutes.js';
@@ -9,23 +9,20 @@ import ProductRoutes from './routes/ProductRoutes.js';
 
 const app = express();
 const port = process.env.PORT || 3032;
-const mongoURI = process.env.MONGODB_URI;
 
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
-mongoose
-  .connect(mongoURI, {
-    serverSelectionTimeoutMS: 5000,
-  })
-  .then(() => console.log('Connected to MongoDB successfully!'))
-  .catch((error) => console.error('MongoDB connection error:', error.message));
+sequelize
+  .sync()
+  .then(() => console.log('Connected to PostgreSQL and tables synced!'))
+  .catch((error) => console.error('PostgreSQL connection error:', error.message));
 
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     success: true,
     message: 'API is running',
-    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    database: 'postgres',
   });
 });
 
@@ -33,7 +30,6 @@ app.use('/api/contact', ContactRoutes);
 app.use('/api/login', LoginRoutes);
 app.use('/api/register', RegisterRoutes);
 app.use('/api/products', ProductRoutes);
-
 
 app.use((req, res) => {
   res.status(404).json({

@@ -24,7 +24,7 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({ success: false, errors });
     }
 
-    const user = await Auth.findOne({ email: cleanEmail });
+    const user = await Auth.findOne({ where: { email: cleanEmail } });
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -41,7 +41,7 @@ export const loginUser = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user._id, name: user.name, email: user.email, role: user.role },
+      { id: user.id, name: user.name, email: user.email, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -51,7 +51,7 @@ export const loginUser = async (req, res) => {
       message: 'Login successful',
       token,
       data: {
-        _id: user._id,
+        id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,
